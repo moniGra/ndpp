@@ -1,0 +1,153 @@
+cd /home/monika/Workspaces/COST_workspace/ns-3.11/
+./waf --run "scratch/ipv6-nd --ndType=2 --targetNr=19 --initiatorNr=5 --hopLimit=5"
+
+
+export 'NS_LOG=Ipv6L3Protocol_Ndpp=level_logic|prefix_func|prefix_time'
+export 'NS_LOG=Icmpv6L4Protocol_Ndpp=level_logic|prefix_func|prefix_time'
+export 'NS_LOG=Ipv6Interface_Ndpp=level_logic|prefix_func|prefix_time'
+export 'NS_LOG=UdpEchoClientApplication=level_all|prefix_time|prefix_node|prefix_func:UdpEchoServerApplication=level_all|prefix_func'
+
+export 'NS_LOG=prefix_func|prefix_time'
+export 'NS_LOG=*=level_all|prefix_func|prefix_time'
+
+clear the NS_LOG variable to turn off the torrent of logging we previously enabled:
+export NS_LOG=
+
+export NS_LOG='Icmpv6L4Protocol_Ndpp:Ipv6Interface_Ndpp=level_logic|prefix_func|prefix_time'
+
+export 'NS_LOG=AarfWifiManager=level_all|prefix_time|prefix_node|prefix_func:AdhocWifiMac=level_all|prefix_time|prefix_node|prefix_func:ApWifiMac=level_all|prefix_time|prefix_node|prefix_func:ArpL3Protocol=level_all|prefix_time|prefix_node|prefix_func:ConnectionManager=level_all|prefix_time|prefix_node|prefix_func:ConstantRateWifiManager=level_all|prefix_time|prefix_node|prefix_func:CsmaChannel=level_all|prefix_time|prefix_node|prefix_func:CsmaHelper=level_all|prefix_time|prefix_node|prefix_func:CsmaNetDevice=level_all|prefix_time|prefix_node|prefix_func:DcaTxop=level_all|prefix_time|prefix_node|prefix_func:Dcf=level_all|prefix_time|prefix_node|prefix_func:DcfManager=level_all|prefix_time|prefix_node|prefix_func:DropTailQueue=level_all|prefix_time|prefix_node|prefix_func:Icmpv4Header=level_all|prefix_time|prefix_node|prefix_func:Icmpv4L4Protocol=level_all|prefix_time|prefix_node|prefix_func:Icmpv6Header=level_all|prefix_time|prefix_node|prefix_func:Icmpv6L4Protocol=level_all|prefix_time|prefix_node|prefix_func:Icmpv6L4Protocol_NdSimple=level_all|prefix_time|prefix_node|prefix_func:Icmpv6L4Protocol_Ndpp=level_all|prefix_time|prefix_node|prefix_func:Inet6SocketAddress=level_all|prefix_time|prefix_node|prefix_func:InetSocketAddress=level_all|prefix_time|prefix_node|prefix_func:InternetStackHelper=level_all|prefix_time|prefix_node|prefix_func:InternetStackHelper_Nd=level_all|prefix_time|prefix_node|prefix_func:InternetTraceHelper=level_all|prefix_time|prefix_node|prefix_func:Ipv6Header=level_all|prefix_time|prefix_node|prefix_func:Ipv6Interface=level_all|prefix_time|prefix_node|prefix_func:Ipv6Interface_Ndpp=level_all|prefix_time|prefix_node|prefix_func:Ipv6L3Protocol=level_all|prefix_time|prefix_node|prefix_func:Ipv6L3Protocol_Ndpp=level_all|prefix_time|prefix_node|prefix_func:Ipv6Nd=level_all|prefix_time|prefix_node|prefix_func:MacLow=level_all|prefix_time|prefix_node|prefix_func:MacRxMiddle=level_all|prefix_time|prefix_node|prefix_func:MobilityHelper=level_all|prefix_time|prefix_node|prefix_func:Packet=level_all|prefix_time|prefix_node|prefix_func:PacketSink=level_all|prefix_time|prefix_node|prefix_func:PacketSocket=level_all|prefix_time|prefix_node|prefix_func:PointToPointChannel=level_all|prefix_time|prefix_node|prefix_func:PointToPointNetDevice=level_all|prefix_time|prefix_node|prefix_func:PositionAllocator=level_all|prefix_time|prefix_node|prefix_func:PropagationLossModel=level_all|prefix_time|prefix_node|prefix_func:Queue=level_all|prefix_time|prefix_node|prefix_func:RedQueue=level_all|prefix_time|prefix_node|prefix_func:RegularWifiMac=level_all|prefix_time|prefix_node|prefix_func:Socket=level_all|prefix_time|prefix_node|prefix_func:StaWifiMac=level_all|prefix_time|prefix_node|prefix_func:WifiChannel=level_all|prefix_time|prefix_node|prefix_func:WifiHelper=level_all|prefix_time|prefix_node|prefix_func:WifiNetDevice=level_all|prefix_time|prefix_node|prefix_func:WifiPhy=level_all|prefix_time|prefix_node|prefix_func:WifiPhyStateHelper=level_all|prefix_time|prefix_node|prefix_func:WifiRadioEnergyModel=level_all|prefix_time|prefix_node|prefix_func:WifiRemoteStationManager=level_all|prefix_time|prefix_node|prefix_func:YansErrorRateModel=level_all|prefix_time|prefix_node|prefix_func:YansWifiChannel=level_all|prefix_time|prefix_node|prefix_func:YansWifiHelper=level_all|prefix_time|prefix_node|prefix_func:YansWifiPhy=level_all|prefix_time|prefix_node|prefix_func'
+
+
+./waf --run "scratch/ipv6-nd --ndType=2 --targetNr=19 --initiatorNr=5 --hopLimit=5" > log.out 2>&1
+
+./waf --run "scratch/ipv6-nd --verbose=1 --ndType=2 --targetNr=19 --initiatorNr=5 --topology=1 --hopLimit=8 --resultFileSuffix=crossgrid" > log.out 2>&1
+
+//HopLimit experiments:
+./waf --run "scratch/ipv6-nd-hopLimitTest --ndType=2 --topology=0 --resultFileSuffix=hopLimit-grid" > log.out 2>&1
+
+//checking memory leaks:
+./waf --command-template="valgrind --leak-check=full --show-reachable=yes %s" --run scratch/ipv6-nd-hopLimitTest > log5_2.out 2>&1
+
+./waf --run scratch/ipv6-ndpp-testsuite --command-template="valgrind --leak-check=full --show-reachable=yes %s --verbose=-1 --ndType=3 --wifiStd=2 --wifiMode=2 --noOfRuns=10 --initiatorNo=-1 --targetNo=-1 --channelType=1 --ctrlNoOfRuns=0 --nDADcount=3 --frwCount=1 --dadReplyCount=1 --DadDelay=1 --netAnim=1 --multiExpDupNoOfRuns=50 --resultFileSuffix=test-RN-50-100-0-grid-100n --topology=0 --initialHopLimit=150 --maxHopLimit=150 --nWifi=100 --resultType=12 --rnNoOfRuns=10 --newNodes=1 --newAutoAddresses=1 --randomNodesNo=50 --noOfDupl=50 --noOfSameDupl=0" > log3.out 2>&1
+
+
+//HopLimit experiments - cd:
+./waf --run "scratch/ipv6-nd-hopLimitTest --verbose=1 --ndType=2 --topology=0 --resultFileSuffix=hopLimit-grid --initialHopLimit=4 --maxHopLimit=14" > log.out 2>&1
+
+
+///**********************************
+EXPERIMENTS WITH 3-18:
+///**********************************
+
+cd /home/monika/Workspaces/ns-3-update-nd++/ns-3.18/
+
+//SingleNodeRun:
+
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=1 --ndType=2 --topology=0 --resultFileSuffix=hopLimit-grid --initialHopLimit=4 --maxHopLimit=4 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=1" > log.out 2>&1
+
+
+
+//HopLimit selected node:
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=2 --topology=0 --resultFileSuffix=hopLimitPerNode-grid --initialHopLimit=3 --maxHopLimit=16 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=3" > log.out 2>&1
+
+
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=2 --topology=4 --resultFileSuffix=hopLimitPerNode-rDisc-16n --initialHopLimit=3 --maxHopLimit=16 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=3" > log4.out 2>&1
+
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=2 --topology=0 --resultFileSuffix=HLperNode-grid-169n --initialHopLimit=2 --maxHopLimit=169 --hlStep=3 --nWifi=169 --wifiStd=2 --wifiMode=2 --resultType=3" > log1.out 2>&1
+
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=1 --topology=3 --resultFileSuffix=HLperNode-NDSimple-uDisc-16ntest --initialHopLimit=2 --maxHopLimit=12 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=3"
+
+
+
+//Duplicate Detection test:
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=2 --topology=0 --resultFileSuffix=testDupDetect --initialHopLimit=7 --maxHopLimit=16 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=4 --initiatorNo=2 --targetNo=15" > log.out 2>&1
+
+
+//Duplication Probability test:
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=2 --topology=0 --resultFileSuffix=testDupProb --initialHopLimit=2 --maxHopLimit=8 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=5 --initiatorNo=1 --targetNo=15 --noOfRuns=10" > log.out 2>&1
+
+
+//Hop Limit with ndpp_frw test:
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=3 --topology=0 --resultFileSuffix=HLperNode-NDFrw-grid-16n --initialHopLimit=2 --maxHopLimit=21 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=3 --noOfRuns=10" > log.out 2>&1
+
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=3 --topology=3 --resultFileSuffix=HLperNode-NDFrw-uDisc-16n --initialHopLimit=2 --maxHopLimit=22 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=3 --noOfRuns=10" > log2.out 2>&1
+
+
+//Message LIfetime test:
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=3 --topology=1 --resultFileSuffix=HLperNode-MLife-NDFrw-crossGrid-16n --initialHopLimit=2 --maxHopLimit=21 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=6 --noOfRuns=20" > log1.out 2>&1
+
+//Duplication Probability:
+ ./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=2 --topology=0 --resultFileSuffix=HLperNode-DupProb-NDpp-grid-100n --initialHopLimit=17 --maxHopLimit=30 --hlStep=3 --nWifi=100 --wifiStd=2 --wifiMode=2 --resultType=5 --noOfRuns=50 --initiatorNo=0 --targetNo=99 --nDADcount=1 --frwCount=1 --RETRANS_TIMER_NDAD=3000" > log2.out 2>&1
+
+ ./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=2 --topology=0 --resultFileSuffix=HLperNode-DupProb-NDpp-grid-100n-15s --initialHopLimit=20 --maxHopLimit=30 --hlStep=3 --nWifi=100 --wifiStd=2 --wifiMode=2 --resultType=5 --noOfRuns=50 --initiatorNo=0 --targetNo=99 --nDADcount=1 --frwCount=1 --RETRANS_TIMER_NDAD=15000" > log1.out 2>&1
+
+./waf --run "scratch/ipv6-ndpp-testsuite --verbose=0 --ndType=3 --topology=0 --resultFileSuffix=HLperNode-NdFrw-DupProbREALgrid-16n-nakag --initialHopLimit=5 --maxHopLimit=21 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=5 --noOfRuns=50 --initiatorNo=0 --targetNo=15 --nDADcount=1 --frwCount=1 --channelType=1" > log3.out 2>&1
+
+
+//RAndom Nodes:
+//testing:
+--verbose=0 --ndType=3 --topology=0 --resultFileSuffix=HLperNode-NDFrw-REAL-grid-16n-dup --initialHopLimit=16 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=9 --noOfRuns=10 --initiatorNo=-1 --targetNo=-1 --channelType=1 --ctrlNoOfRuns=1 --randomNodesNo=6
+
+--verbose=0 --ndType=3 --topology=0 --resultFileSuffix=HLperNode-NDFrw-REAL-grid-16n-dup --initialHopLimit=16 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=8 --noOfRuns=10 --initiatorNo=-1 --targetNo=-1 --channelType=1 --ctrlNoOfRuns=0 --nDADcount=3 --frwCount=1 --dadReplyCount=1 --randomNodesNo=4 --noOfDupl=4
+
+--verbose=0 --ndType=3 --topology=0 --resultFileSuffix=test-NDFrw-REAL-RN-grid-16n --initialHopLimit=25 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=9 --noOfRuns=10 --initiatorNo=-1 --targetNo=-1 --channelType=1 --ctrlNoOfRuns=1 --nDADcount=2 --frwCount=1 --dadReplyCount=1 --randomNodesNo=4 --noOfDupl=0 --noOfSameDupl=0 --rnNoOfRuns=5 --newNodes=0
+
+--verbose=0 --ndType=3 --topology=0 --resultFileSuffix=test-NDFrw-REAL-RN-grid-16n-dup --initialHopLimit=25 --nWifi=16 --wifiStd=2 --wifiMode=2 --resultType=8 --noOfRuns=50 --initiatorNo=-1 --targetNo=-1 --channelType=1 --ctrlNoOfRuns=0 --nDADcount=2 --frwCount=1 --dadReplyCount=1 --randomNodesNo=4 --noOfDupl=4 --noOfSameDupl=0 --rnNoOfRuns=5 --newNodes=0
+
+//build configurations - debug/release
+./waf configure --build-profile=debug --out=build/debug
+./waf configure --build-profile=release --out=build/release
+./waf configure --build-profile=optimized --out=build/optimized
+
+
+//PYTHON script:
+./simulExec.py "RN-50-100-0" "--resultType=12 --rnNoOfRuns=10 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=8 --noOfDupl=8 --noOfSameDupl=0" "--randomNodesNo=18 --noOfDupl=18 --noOfSameDupl=0" "--randomNodesNo=50 --noOfDupl=50 --noOfSameDupl=0"
+
+
+./simulExec.py "nd4-RN-50-100-0" "--resultType=12 --rnNoOfRuns=10 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=8 --noOfDupl=8 --noOfSameDupl=0" "--randomNodesNo=18 --noOfDupl=18 --noOfSameDupl=0" "--randomNodesNo=50 --noOfDupl=50 --noOfSameDupl=0"
+
+./simulExec.py "nd4-RN-50-20-0" "--resultType=12 --rnNoOfRuns=10 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=8 --noOfDupl=2 --noOfSameDupl=0" "--randomNodesNo=18 --noOfDupl=4 --noOfSameDupl=0" "--randomNodesNo=50 --noOfDupl=10 --noOfSameDupl=0"
+
+./simulExec.py "nd4-RN-50-100-0-nN0" "--resultType=12 --rnNoOfRuns=10 --newNodes=0 --newAutoAddresses=0" "--randomNodesNo=8 --noOfDupl=8 --noOfSameDupl=0" "--randomNodesNo=18 --noOfDupl=18 --noOfSameDupl=0" "--randomNodesNo=50 --noOfDupl=50 --noOfSameDupl=0"
+
+
+//NEtAnim:
+cd /home/monika/Workspaces/ns-3-update-nd++/ns-3.18/
+cd ../netanim/
+./NetAnim
+
+//Mobility:
+
+
+./simulExecMobility.py "mobility-RN-50-20-0" "--resultType=12 --rnNoOfRuns=5 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=8 --noOfDupl=2 --noOfSameDupl=0" "--randomNodesNo=18 --noOfDupl=4 --noOfSameDupl=0" "--randomNodesNo=50 --noOfDupl=10 --noOfSameDupl=0"
+
+./simulExecMobility_100n_ideal.py "mobility-100n-50-20-0-ideal" "--resultType=12 --rnNoOfRuns=5 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=8 --noOfDupl=2 --noOfSameDupl=0" "--randomNodesNo=18 --noOfDupl=4 --noOfSameDupl=0" "--randomNodesNo=50 --noOfDupl=10 --noOfSameDupl=0"
+
+./simulExecMobility_16n.py "mobility-5-100-0" "--resultType=12 --rnNoOfRuns=5 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=1 --noOfDupl=1 --noOfSameDupl=0" "--randomNodesNo=2 --noOfDupl=2 --noOfSameDupl=0" "--randomNodesNo=5 --noOfDupl=5 --noOfSameDupl=0"
+
+./simulExec_ideal.py "RN-5-100-0-ideal" "--resultType=12 --rnNoOfRuns=10 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=1 --noOfDupl=1 --noOfSameDupl=0" "--randomNodesNo=2 --noOfDupl=2 --noOfSameDupl=0" "--randomNodesNo=5 --noOfDupl=5 --noOfSameDupl=0"
+
+./simulExecMobility.py  "mobility-5-100-0" "--resultType=12 --rnNoOfRuns=5 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=1 --noOfDupl=1 --noOfSameDupl=0" "--randomNodesNo=2 --noOfDupl=2 --noOfSameDupl=0" "--randomNodesNo=5 --noOfDupl=5 --noOfSameDupl=0"
+
+
+./simulExecMobility.py "mobility-20-20-0" "--resultType=12 --rnNoOfRuns=5 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=3 --noOfDupl=1 --noOfSameDupl=0" "--randomNodesNo=7 --noOfDupl=2 --noOfSameDupl=0" "--randomNodesNo=20 --noOfDupl=4 --noOfSameDupl=0"
+
+
+./simulExecMobility.py "mobility-20-50-100" "--resultType=12 --rnNoOfRuns=5 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=3 --noOfDupl=2 --noOfSameDupl=2" "--randomNodesNo=7 --noOfDupl=4 --noOfSameDupl=4" "--randomNodesNo=20 --noOfDupl=10 --noOfSameDupl=10"
+
+./simulExecMobility.py "mobility-20-50-0" "--resultType=12 --rnNoOfRuns=5 --newNodes=1 --newAutoAddresses=1" "--randomNodesNo=3 --noOfDupl=2 --noOfSameDupl=0" "--randomNodesNo=7 --noOfDupl=4 --noOfSameDupl=0" "--randomNodesNo=20 --noOfDupl=10 --noOfSameDupl=0"
+
+
+./simulExecMobility_v2.py "mobility-v2-50-100-0-nN0" "--resultType=12 --rnNoOfRuns=5 --newNodes=0 --newAutoAddresses=0" "--randomNodesNo=8 --noOfDupl=8 --noOfSameDupl=0" "--randomNodesNo=18 --noOfDupl=18 --noOfSameDupl=0" "--randomNodesNo=50 --noOfDupl=50 --noOfSameDupl=0"
+
+
+./simulExec_ndadCount36n.py "HLperNode-NDFrw-REAL-NO_DUP" "--targetNo=-1" "" "" ""
+./simulExec_ndadCount36n.py "HLperNode-NDFrw-REAL-DUP" "--targetNo=35" "" "" ""
+
+
+./simulExec_res3.py "HLperNode-NDFrw-IDEAL-ctrlRuns0" "--ctrlNoOfRuns=0" "" "" ""
+
+./simulExec_res6.py "HLperNode-MLife-NDFrw-IDEAL" "--ctrlNoOfRuns=1" "" "" ""
+
+
+
